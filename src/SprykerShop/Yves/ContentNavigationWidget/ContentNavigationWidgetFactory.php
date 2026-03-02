@@ -20,12 +20,6 @@ use Twig\TwigFunction;
  */
 class ContentNavigationWidgetFactory extends AbstractFactory
 {
-    /**
-     * @param \Twig\Environment $twig
-     * @param string $localeName
-     *
-     * @return \Spryker\Shared\Twig\TwigFunctionProvider
-     */
     public function createContentNavigationTwigFunctionProvider(Environment $twig, string $localeName): TwigFunctionProvider
     {
         return new ContentNavigationTwigFunctionProvider(
@@ -37,12 +31,6 @@ class ContentNavigationWidgetFactory extends AbstractFactory
         );
     }
 
-    /**
-     * @param \Twig\Environment $twig
-     * @param string $localeName
-     *
-     * @return \Twig\TwigFunction
-     */
     public function createContentNavigationTwigFunction(Environment $twig, string $localeName): TwigFunction
     {
         $functionProvider = $this->createContentNavigationTwigFunctionProvider($twig, $localeName);
@@ -54,17 +42,11 @@ class ContentNavigationWidgetFactory extends AbstractFactory
         );
     }
 
-    /**
-     * @return \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface
-     */
     public function getContentNavigationClient(): ContentNavigationWidgetToContentNavigationClientInterface
     {
         return $this->getProvidedDependency(ContentNavigationWidgetDependencyProvider::CLIENT_CONTENT_NAVIGATION);
     }
 
-    /**
-     * @return \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToNavigationStorageClientInterface
-     */
     public function getNavigationStorageClient(): ContentNavigationWidgetToNavigationStorageClientInterface
     {
         return $this->getProvidedDependency(ContentNavigationWidgetDependencyProvider::CLIENT_NAVIGATION_STORAGE);

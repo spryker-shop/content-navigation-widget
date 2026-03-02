@@ -11,11 +11,5 @@ use Generated\Shared\Transfer\ContentNavigationTypeTransfer;
 
 interface ContentNavigationWidgetToContentNavigationClientInterface
 {
-    /**
-     * @param string $contentKey
-     * @param string $localeName
-     *
-     * @return \Generated\Shared\Transfer\ContentNavigationTypeTransfer|null
-     */
     public function executeNavigationTypeByKey(string $contentKey, string $localeName): ?ContentNavigationTypeTransfer;
 }

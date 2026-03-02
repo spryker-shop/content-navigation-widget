@@ -86,9 +86,6 @@ class ContentNavigationTwigPluginTest extends Unit
      */
     protected $tester;
 
-    /**
-     * @return void
-     */
     public function testContentNavigationNotFound(): void
     {
         // Arrange
@@ -105,9 +102,6 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->assertSame(static::MESSAGE_NAVIGATION_NOT_FOUND, $navigationContent);
     }
 
-    /**
-     * @return void
-     */
     public function testContentNavigationWrongType(): void
     {
         // Arrange
@@ -128,9 +122,6 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->assertSame(static::MESSAGE_NAVIGATION_WRONG_TYPE, $navigationContent);
     }
 
-    /**
-     * @return void
-     */
     public function testContentNavigationWrongTemplate(): void
     {
         // Arrange
@@ -148,9 +139,6 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->assertSame(static::MESSAGE_NAVIGATION_WRONG_TEMPLATE, $navigationContent);
     }
 
-    /**
-     * @return void
-     */
     public function testContentNavigationWithInactiveNavigationWillReturnEmptyLine(): void
     {
         // Arrange
@@ -172,9 +160,6 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->assertSame('', $navigationContent);
     }
 
-    /**
-     * @return void
-     */
     public function testContentNavigationRendering(): void
     {
         // Arrange
@@ -196,11 +181,6 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->assertSame(static::RENDERED_STRING, $navigationContent);
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\ContentNavigationTypeTransfer|null $contentNavigationTypeTransfer
-     *
-     * @return void
-     */
     protected function setContentNavigationWidgetToContentNavigationClientReturn(?ContentNavigationTypeTransfer $contentNavigationTypeTransfer = null): void
     {
         $contentNavigationWidgetToContentNavigationClientBridge = $this
@@ -214,11 +194,6 @@ class ContentNavigationTwigPluginTest extends Unit
         );
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\NavigationStorageTransfer $navigationStorageTransfer
-     *
-     * @return void
-     */
     protected function setContentNavigationWidgetToNavigationStorageClientReturn(NavigationStorageTransfer $navigationStorageTransfer): void
     {
         $contentNavigationWidgetToNavigationStorageClientBridge = $this
@@ -232,11 +207,6 @@ class ContentNavigationTwigPluginTest extends Unit
         );
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\ContentTypeContextTransfer|null $contentTypeContextTransfer
-     *
-     * @return void
-     */
     protected function setContentNavigationToContentStorageClientReturn(?ContentTypeContextTransfer $contentTypeContextTransfer = null): void
     {
         $contentNavigationWidgetToContentStorageClientBridge = $this
@@ -263,17 +233,11 @@ class ContentNavigationTwigPluginTest extends Unit
         return $this->getTwig()->getFunction($functionName->getValue());
     }
 
-    /**
-     * @return \SprykerShop\Yves\ContentNavigationWidget\Plugin\Twig\ContentNavigationTwigPlugin
-     */
     protected function createTwigPlugin(): ContentNavigationTwigPlugin
     {
         return new ContentNavigationTwigPlugin();
     }
 
-    /**
-     * @return \Twig\Environment
-     */
     protected function getTwig(): Environment
     {
         $twigMock = $this->getMockBuilder(Environment::class)->setConstructorArgs([new FilesystemLoader()])

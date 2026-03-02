@@ -24,12 +24,6 @@ class ContentNavigationWidgetToContentNavigationClientBridge implements ContentN
         $this->contentNavigationClient = $contentNavigationClient;
     }
 
-    /**
-     * @param string $contentKey
-     * @param string $localeName
-     *
-     * @return \Generated\Shared\Transfer\ContentNavigationTypeTransfer|null
-     */
     public function executeNavigationTypeByKey(string $contentKey, string $localeName): ?ContentNavigationTypeTransfer
     {
         return $this->contentNavigationClient->executeNavigationTypeByKey($contentKey, $localeName);

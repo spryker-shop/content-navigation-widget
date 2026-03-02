@@ -66,13 +66,6 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
      */
     protected $contentNavigationWidgetConfig;
 
-    /**
-     * @param \Twig\Environment $twig
-     * @param string $localeName
-     * @param \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface $contentNavigationClient
-     * @param \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToNavigationStorageClientInterface $navigationStorageClient
-     * @param \SprykerShop\Yves\ContentNavigationWidget\ContentNavigationWidgetConfig $contentNavigationWidgetConfig
-     */
     public function __construct(
         Environment $twig,
         string $localeName,
@@ -87,17 +80,11 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         $this->contentNavigationWidgetConfig = $contentNavigationWidgetConfig;
     }
 
-    /**
-     * @return string
-     */
     public function getFunctionName(): string
     {
         return static::TWIG_FUNCTION_NAME_CONTENT_NAVIGATION;
     }
 
-    /**
-     * @return callable
-     */
     public function getFunction(): callable
     {
         return function (string $contentKey, string $templateIdentifier) {
@@ -136,11 +123,6 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         };
     }
 
-    /**
-     * @param string $templateIdentifier
-     *
-     * @return string|null
-     */
     protected function findTemplate(string $templateIdentifier): ?string
     {
         $availableTemplateList = $this->contentNavigationWidgetConfig->getAvailableTemplateList();
@@ -148,41 +130,21 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         return $availableTemplateList[$templateIdentifier] ?? null;
     }
 
-    /**
-     * @param string $contentKey
-     *
-     * @return string
-     */
     protected function getMessageNavigationNotFound(string $contentKey): string
     {
         return sprintf(static::MESSAGE_NAVIGATION_NOT_FOUND, $contentKey);
     }
 
-    /**
-     * @param string $templateIdentifier
-     *
-     * @return string
-     */
     protected function getMessageNavigationWrongTemplate(string $templateIdentifier): string
     {
         return sprintf(static::MESSAGE_NAVIGATION_WRONG_TEMPLATE, $templateIdentifier);
     }
 
-    /**
-     * @param string $contentKey
-     *
-     * @return string
-     */
     protected function getMessageNavigationWrongType(string $contentKey): string
     {
         return sprintf(static::MESSAGE_NAVIGATION_WRONG_TYPE, $contentKey);
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\NavigationStorageTransfer $navigationStorageTransfer
-     *
-     * @return \Generated\Shared\Transfer\NavigationStorageTransfer
-     */
     protected function optimizeNavigationStorageNodes(NavigationStorageTransfer $navigationStorageTransfer): NavigationStorageTransfer
     {
         $now = new DateTime();

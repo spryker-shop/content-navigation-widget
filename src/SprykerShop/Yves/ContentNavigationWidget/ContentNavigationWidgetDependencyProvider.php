@@ -27,11 +27,6 @@ class ContentNavigationWidgetDependencyProvider extends AbstractBundleDependency
      */
     public const CLIENT_NAVIGATION_STORAGE = 'CLIENT_NAVIGATION_STORAGE';
 
-    /**
-     * @param \Spryker\Yves\Kernel\Container $container
-     *
-     * @return \Spryker\Yves\Kernel\Container
-     */
     public function provideDependencies(Container $container): Container
     {
         $container = parent::provideDependencies($container);
@@ -41,11 +36,6 @@ class ContentNavigationWidgetDependencyProvider extends AbstractBundleDependency
         return $container;
     }
 
-    /**
-     * @param \Spryker\Yves\Kernel\Container $container
-     *
-     * @return \Spryker\Yves\Kernel\Container
-     */
     protected function addContentNavigationClient(Container $container): Container
     {
         $container->set(static::CLIENT_CONTENT_NAVIGATION, function (Container $container) {
@@ -57,11 +47,6 @@ class ContentNavigationWidgetDependencyProvider extends AbstractBundleDependency
         return $container;
     }
 
-    /**
-     * @param \Spryker\Yves\Kernel\Container $container
-     *
-     * @return \Spryker\Yves\Kernel\Container
-     */
     protected function addNavigationStorageClient(Container $container): Container
     {
         $container->set(static::CLIENT_NAVIGATION_STORAGE, function (Container $container) {
