@@ -8,6 +8,7 @@
 namespace SprykerShop\Yves\ContentNavigationWidget;
 
 use Spryker\Yves\Kernel\AbstractBundleConfig;
+use SprykerShop\Shared\ContentNavigationWidget\ContentNavigationWidgetConstants;
 
 class ContentNavigationWidgetConfig extends AbstractBundleConfig
 {
@@ -39,6 +40,8 @@ class ContentNavigationWidgetConfig extends AbstractBundleConfig
      */
     protected const WIDGET_TEMPLATE_IDENTIFIER_LIST = 'list';
 
+    protected const int DEFAULT_NAVIGATION_REVALIDATION_TIME_IN_SECONDS = 3600;
+
     /**
      * @api
      *
@@ -52,5 +55,38 @@ class ContentNavigationWidgetConfig extends AbstractBundleConfig
             static::WIDGET_TEMPLATE_IDENTIFIER_LIST_INLINE => '@ContentNavigationWidget/views/navigation/list-inline.twig',
             static::WIDGET_TEMPLATE_IDENTIFIER_LIST => '@ContentNavigationWidget/views/navigation/list.twig',
         ];
+    }
+
+    /**
+     * Specification:
+     * - Determines if rendered navigation content should be cached in storage.
+     * - When enabled, navigation is rendered once and stored for future requests.
+     * - When disabled, navigation is rendered on every request.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isNavigationCacheEnabled(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Specification:
+     * - Returns the default revalidation time in seconds for navigation cache.
+     * - Used when no specific validity dates are set on navigation nodes.
+     * - Default is 24 hours (86400 seconds).
+     *
+     * @api
+     *
+     * @return int
+     */
+    public function getDefaultNavigationRevalidationTimeInSeconds(): int
+    {
+        return $this->get(
+            ContentNavigationWidgetConstants::NAVIGATION_REVALIDATION_TIME_IN_SECONDS,
+            static::DEFAULT_NAVIGATION_REVALIDATION_TIME_IN_SECONDS,
+        );
     }
 }

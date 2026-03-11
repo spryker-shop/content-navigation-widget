@@ -7,6 +7,8 @@
 
 namespace SprykerShop\Yves\ContentNavigationWidget\Dependency\Client;
 
+use Generated\Shared\Transfer\NavigationStorageTransfer;
+
 interface ContentNavigationWidgetToNavigationStorageClientInterface
 {
     /**
@@ -16,4 +18,6 @@ interface ContentNavigationWidgetToNavigationStorageClientInterface
      * @return \Generated\Shared\Transfer\NavigationStorageTransfer|null
      */
     public function findNavigationTreeByKey($navigationKey, $localeName);
+
+    public function saveNavigationTree(NavigationStorageTransfer $navigationStorageTransfer, string $navigationKey, string $localeName): void;
 }

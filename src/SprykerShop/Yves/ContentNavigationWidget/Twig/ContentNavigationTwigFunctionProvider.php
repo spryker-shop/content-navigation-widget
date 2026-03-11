@@ -15,6 +15,7 @@ use Spryker\Shared\Twig\TwigFunctionProvider;
 use SprykerShop\Yves\ContentNavigationWidget\ContentNavigationWidgetConfig;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToNavigationStorageClientInterface;
+use SprykerShop\Yves\ContentNavigationWidget\Twig\Calculator\CacheRevalidationTimeCalculator;
 use Twig\Environment;
 
 class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
@@ -66,18 +67,22 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
      */
     protected $contentNavigationWidgetConfig;
 
+    protected CacheRevalidationTimeCalculator $cacheRevalidationTimeCalculator;
+
     public function __construct(
         Environment $twig,
         string $localeName,
         ContentNavigationWidgetToContentNavigationClientInterface $contentNavigationClient,
         ContentNavigationWidgetToNavigationStorageClientInterface $navigationStorageClient,
-        ContentNavigationWidgetConfig $contentNavigationWidgetConfig
+        ContentNavigationWidgetConfig $contentNavigationWidgetConfig,
+        CacheRevalidationTimeCalculator $cacheRevalidationTimeCalculator
     ) {
         $this->twig = $twig;
         $this->localeName = $localeName;
         $this->contentNavigationClient = $contentNavigationClient;
         $this->navigationStorageClient = $navigationStorageClient;
         $this->contentNavigationWidgetConfig = $contentNavigationWidgetConfig;
+        $this->cacheRevalidationTimeCalculator = $cacheRevalidationTimeCalculator;
     }
 
     public function getFunctionName(): string
@@ -109,6 +114,12 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
             if (!$navigationStorageTransfer) {
                 return $this->getMessageNavigationNotFound($contentKey);
             }
+            if (
+                $this->contentNavigationWidgetConfig->isNavigationCacheEnabled() &&
+                $this->isShouldBeRevalidated($navigationStorageTransfer, $availableTemplate)
+            ) {
+                return $navigationStorageTransfer->getRenderedContent()[$availableTemplate];
+            }
 
             if (!$navigationStorageTransfer->getIsActive()) {
                 return '';
@@ -116,10 +127,25 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
 
             $navigationStorageTransfer = $this->optimizeNavigationStorageNodes($navigationStorageTransfer);
 
-            return $this->twig->render(
+            $renderedContent = $this->twig->render(
                 $availableTemplate,
                 ['navigation' => $navigationStorageTransfer],
             );
+
+            if ($this->contentNavigationWidgetConfig->isNavigationCacheEnabled()) {
+                $sharedContentData = $navigationStorageTransfer->getRenderedContent();
+                $sharedContentData[$availableTemplate] = $renderedContent;
+                $navigationStorageTransfer->setRenderedContent($sharedContentData);
+                $this->cacheRevalidationTimeCalculator->calculateRevalidationTime($navigationStorageTransfer);
+
+                $this->navigationStorageClient->saveNavigationTree(
+                    $navigationStorageTransfer,
+                    $contentNavigationTypeTransfer->getNavigationKey(),
+                    $this->localeName,
+                );
+            }
+
+            return $renderedContent;
         };
     }
 
@@ -167,5 +193,18 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         $navigationStorageTransfer->setNodes($optimizedNavigationNodeStorageTransfers);
 
         return $navigationStorageTransfer;
+    }
+
+    protected function isShouldBeRevalidated(NavigationStorageTransfer $navigationStorageTransfer, string $availableTemplate): bool
+    {
+        if (!isset($navigationStorageTransfer->getRenderedContent()[$availableTemplate])) {
+            return false;
+        }
+
+        if ($navigationStorageTransfer->getRevalidteTime() === null) {
+            return true;
+        }
+
+        return (int)$navigationStorageTransfer->getRevalidteTime() >= time();
     }
 }

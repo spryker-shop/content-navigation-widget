@@ -11,6 +11,7 @@ use Spryker\Shared\Twig\TwigFunctionProvider;
 use Spryker\Yves\Kernel\AbstractFactory;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToNavigationStorageClientInterface;
+use SprykerShop\Yves\ContentNavigationWidget\Twig\Calculator\CacheRevalidationTimeCalculator;
 use SprykerShop\Yves\ContentNavigationWidget\Twig\ContentNavigationTwigFunctionProvider;
 use Twig\Environment;
 use Twig\TwigFunction;
@@ -28,6 +29,7 @@ class ContentNavigationWidgetFactory extends AbstractFactory
             $this->getContentNavigationClient(),
             $this->getNavigationStorageClient(),
             $this->getConfig(),
+            $this->createCacheRevalidationTimeCalculator(),
         );
     }
 
@@ -39,6 +41,13 @@ class ContentNavigationWidgetFactory extends AbstractFactory
             $functionProvider->getFunctionName(),
             $functionProvider->getFunction(),
             $functionProvider->getOptions(),
+        );
+    }
+
+    public function createCacheRevalidationTimeCalculator(): CacheRevalidationTimeCalculator
+    {
+        return new CacheRevalidationTimeCalculator(
+            $this->getConfig(),
         );
     }
 
