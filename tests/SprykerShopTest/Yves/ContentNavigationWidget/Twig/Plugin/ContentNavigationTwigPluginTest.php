@@ -11,9 +11,11 @@ use Codeception\Test\Unit;
 use Generated\Shared\Transfer\ContentNavigationTypeTransfer;
 use Generated\Shared\Transfer\ContentTypeContextTransfer;
 use Generated\Shared\Transfer\NavigationStorageTransfer;
+use Generated\Shared\Transfer\StoreTransfer;
 use ReflectionClassConstant;
 use Spryker\Client\ContentNavigation\ContentNavigationDependencyProvider;
 use Spryker\Client\ContentNavigation\Dependency\Client\ContentNavigationToContentStorageClientInterface;
+use Spryker\Client\Store\StoreClientInterface;
 use Spryker\Service\Container\ContainerInterface;
 use SprykerShop\Yves\ContentNavigationWidget\ContentNavigationWidgetDependencyProvider;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface;
@@ -65,6 +67,10 @@ class ContentNavigationTwigPluginTest extends Unit
      * @var string
      */
     protected const RENDERED_STRING = 'output';
+
+    protected const string STORE_NAME = 'DE';
+
+    protected const string NAVIGATION_KEY = 'main-navigation';
 
     /**
      * @var string
@@ -142,7 +148,10 @@ class ContentNavigationTwigPluginTest extends Unit
     public function testContentNavigationWithInactiveNavigationWillReturnEmptyLine(): void
     {
         // Arrange
-        $this->setContentNavigationWidgetToContentNavigationClientReturn(new ContentNavigationTypeTransfer());
+        $this->setStoreClientReturn();
+        $this->setContentNavigationWidgetToContentNavigationClientReturn(
+            (new ContentNavigationTypeTransfer())->setNavigationKey(static::NAVIGATION_KEY),
+        );
         $this->setContentNavigationWidgetToNavigationStorageClientReturn(
             (new NavigationStorageTransfer())
                 ->setIsActive(false)
@@ -163,7 +172,10 @@ class ContentNavigationTwigPluginTest extends Unit
     public function testContentNavigationRendering(): void
     {
         // Arrange
-        $this->setContentNavigationWidgetToContentNavigationClientReturn(new ContentNavigationTypeTransfer());
+        $this->setStoreClientReturn();
+        $this->setContentNavigationWidgetToContentNavigationClientReturn(
+            (new ContentNavigationTypeTransfer())->setNavigationKey(static::NAVIGATION_KEY),
+        );
         $this->setContentNavigationWidgetToNavigationStorageClientReturn(
             (new NavigationStorageTransfer())
                 ->setIsActive(true)
@@ -204,6 +216,18 @@ class ContentNavigationTwigPluginTest extends Unit
         $this->tester->setDependency(
             ContentNavigationWidgetDependencyProvider::CLIENT_NAVIGATION_STORAGE,
             $contentNavigationWidgetToNavigationStorageClientBridge,
+        );
+    }
+
+    protected function setStoreClientReturn(): void
+    {
+        $storeClientMock = $this->getMockBuilder(StoreClientInterface::class)->getMock();
+        $storeClientMock
+            ->method('getCurrentStore')
+            ->willReturn((new StoreTransfer())->setName(static::STORE_NAME));
+        $this->tester->setDependency(
+            ContentNavigationWidgetDependencyProvider::CLIENT_STORE,
+            $storeClientMock,
         );
     }
 

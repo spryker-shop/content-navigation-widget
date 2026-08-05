@@ -7,6 +7,7 @@
 
 namespace SprykerShop\Yves\ContentNavigationWidget;
 
+use Spryker\Client\Store\StoreClientInterface;
 use Spryker\Shared\Twig\TwigFunctionProvider;
 use Spryker\Yves\Kernel\AbstractFactory;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface;
@@ -30,6 +31,7 @@ class ContentNavigationWidgetFactory extends AbstractFactory
             $this->getNavigationStorageClient(),
             $this->getConfig(),
             $this->createCacheRevalidationTimeCalculator(),
+            $this->getStoreClient(),
         );
     }
 
@@ -59,5 +61,10 @@ class ContentNavigationWidgetFactory extends AbstractFactory
     public function getNavigationStorageClient(): ContentNavigationWidgetToNavigationStorageClientInterface
     {
         return $this->getProvidedDependency(ContentNavigationWidgetDependencyProvider::CLIENT_NAVIGATION_STORAGE);
+    }
+
+    public function getStoreClient(): StoreClientInterface
+    {
+        return $this->getProvidedDependency(ContentNavigationWidgetDependencyProvider::CLIENT_STORE);
     }
 }

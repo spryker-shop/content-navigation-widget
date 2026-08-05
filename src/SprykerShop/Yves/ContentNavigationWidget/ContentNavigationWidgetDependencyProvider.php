@@ -7,6 +7,7 @@
 
 namespace SprykerShop\Yves\ContentNavigationWidget;
 
+use Spryker\Client\Store\StoreClientInterface;
 use Spryker\Yves\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Yves\Kernel\Container;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientBridge;
@@ -17,21 +18,18 @@ use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigation
  */
 class ContentNavigationWidgetDependencyProvider extends AbstractBundleDependencyProvider
 {
-    /**
-     * @var string
-     */
-    public const CLIENT_CONTENT_NAVIGATION = 'CLIENT_CONTENT_NAVIGATION';
+    public const string CLIENT_CONTENT_NAVIGATION = 'CLIENT_CONTENT_NAVIGATION';
 
-    /**
-     * @var string
-     */
-    public const CLIENT_NAVIGATION_STORAGE = 'CLIENT_NAVIGATION_STORAGE';
+    public const string CLIENT_NAVIGATION_STORAGE = 'CLIENT_NAVIGATION_STORAGE';
+
+    public const string CLIENT_STORE = 'CLIENT_STORE';
 
     public function provideDependencies(Container $container): Container
     {
         $container = parent::provideDependencies($container);
         $container = $this->addContentNavigationClient($container);
         $container = $this->addNavigationStorageClient($container);
+        $container = $this->addStoreClient($container);
 
         return $container;
     }
@@ -53,6 +51,15 @@ class ContentNavigationWidgetDependencyProvider extends AbstractBundleDependency
             return new ContentNavigationWidgetToNavigationStorageClientBridge(
                 $container->getLocator()->navigationStorage()->client(),
             );
+        });
+
+        return $container;
+    }
+
+    protected function addStoreClient(Container $container): Container
+    {
+        $container->set(static::CLIENT_STORE, function (Container $container): StoreClientInterface {
+            return $container->getLocator()->store()->client();
         });
 
         return $container;

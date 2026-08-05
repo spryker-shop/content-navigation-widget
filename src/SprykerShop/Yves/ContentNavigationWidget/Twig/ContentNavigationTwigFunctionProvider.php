@@ -11,6 +11,7 @@ use ArrayObject;
 use DateTime;
 use Generated\Shared\Transfer\NavigationStorageTransfer;
 use Spryker\Client\ContentNavigation\Exception\MissingNavigationTermException;
+use Spryker\Client\Store\StoreClientInterface;
 use Spryker\Shared\Twig\TwigFunctionProvider;
 use SprykerShop\Yves\ContentNavigationWidget\ContentNavigationWidgetConfig;
 use SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface;
@@ -22,67 +23,24 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
 {
     /**
      * @uses \Spryker\Shared\ContentNavigation\ContentNavigationWidgetConfig::TWIG_FUNCTION_NAME
-     *
-     * @var string
      */
-    protected const TWIG_FUNCTION_NAME_CONTENT_NAVIGATION = 'content_navigation';
+    protected const string TWIG_FUNCTION_NAME_CONTENT_NAVIGATION = 'content_navigation';
 
-    /**
-     * @var string
-     */
-    protected const MESSAGE_NAVIGATION_NOT_FOUND = '<b>Content Navigation with key %s not found.</b>';
+    protected const string MESSAGE_NAVIGATION_NOT_FOUND = '<b>Content Navigation with key %s not found.</b>';
 
-    /**
-     * @var string
-     */
-    protected const MESSAGE_NAVIGATION_WRONG_TYPE = '<b>Content Navigation could not be rendered because the content item with key %s is not an navigation.</b>';
+    protected const string MESSAGE_NAVIGATION_WRONG_TYPE = '<b>Content Navigation could not be rendered because the content item with key %s is not an navigation.</b>';
 
-    /**
-     * @var string
-     */
-    protected const MESSAGE_NAVIGATION_WRONG_TEMPLATE = '<b>"%s" is not supported name of template.</b>';
-
-    /**
-     * @var \Twig\Environment
-     */
-    protected $twig;
-
-    /**
-     * @var string
-     */
-    protected $localeName;
-
-    /**
-     * @var \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToContentNavigationClientInterface
-     */
-    protected $contentNavigationClient;
-
-    /**
-     * @var \SprykerShop\Yves\ContentNavigationWidget\Dependency\Client\ContentNavigationWidgetToNavigationStorageClientInterface
-     */
-    protected $navigationStorageClient;
-
-    /**
-     * @var \SprykerShop\Yves\ContentNavigationWidget\ContentNavigationWidgetConfig
-     */
-    protected $contentNavigationWidgetConfig;
-
-    protected CacheRevalidationTimeCalculator $cacheRevalidationTimeCalculator;
+    protected const string MESSAGE_NAVIGATION_WRONG_TEMPLATE = '<b>"%s" is not supported name of template.</b>';
 
     public function __construct(
-        Environment $twig,
-        string $localeName,
-        ContentNavigationWidgetToContentNavigationClientInterface $contentNavigationClient,
-        ContentNavigationWidgetToNavigationStorageClientInterface $navigationStorageClient,
-        ContentNavigationWidgetConfig $contentNavigationWidgetConfig,
-        CacheRevalidationTimeCalculator $cacheRevalidationTimeCalculator
+        protected Environment $twig,
+        protected string $localeName,
+        protected ContentNavigationWidgetToContentNavigationClientInterface $contentNavigationClient,
+        protected ContentNavigationWidgetToNavigationStorageClientInterface $navigationStorageClient,
+        protected ContentNavigationWidgetConfig $contentNavigationWidgetConfig,
+        protected CacheRevalidationTimeCalculator $cacheRevalidationTimeCalculator,
+        protected StoreClientInterface $storeClient
     ) {
-        $this->twig = $twig;
-        $this->localeName = $localeName;
-        $this->contentNavigationClient = $contentNavigationClient;
-        $this->navigationStorageClient = $navigationStorageClient;
-        $this->contentNavigationWidgetConfig = $contentNavigationWidgetConfig;
-        $this->cacheRevalidationTimeCalculator = $cacheRevalidationTimeCalculator;
     }
 
     public function getFunctionName(): string
@@ -114,11 +72,13 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
             if (!$navigationStorageTransfer) {
                 return $this->getMessageNavigationNotFound($contentKey);
             }
+            $renderedContentCacheKey = $this->getRenderedContentCacheKey($availableTemplate);
+
             if (
                 $this->contentNavigationWidgetConfig->isNavigationCacheEnabled() &&
-                $this->isShouldBeRevalidated($navigationStorageTransfer, $availableTemplate)
+                $this->isShouldBeRevalidated($navigationStorageTransfer, $renderedContentCacheKey)
             ) {
-                return $navigationStorageTransfer->getRenderedContent()[$availableTemplate];
+                return $navigationStorageTransfer->getRenderedContent()[$renderedContentCacheKey];
             }
 
             if (!$navigationStorageTransfer->getIsActive()) {
@@ -134,7 +94,7 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
 
             if ($this->contentNavigationWidgetConfig->isNavigationCacheEnabled()) {
                 $sharedContentData = $navigationStorageTransfer->getRenderedContent();
-                $sharedContentData[$availableTemplate] = $renderedContent;
+                $sharedContentData[$renderedContentCacheKey] = $renderedContent;
                 $navigationStorageTransfer->setRenderedContent($sharedContentData);
                 $this->cacheRevalidationTimeCalculator->calculateRevalidationTime($navigationStorageTransfer);
 
@@ -195,9 +155,9 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         return $navigationStorageTransfer;
     }
 
-    protected function isShouldBeRevalidated(NavigationStorageTransfer $navigationStorageTransfer, string $availableTemplate): bool
+    protected function isShouldBeRevalidated(NavigationStorageTransfer $navigationStorageTransfer, string $renderedContentCacheKey): bool
     {
-        if (!isset($navigationStorageTransfer->getRenderedContent()[$availableTemplate])) {
+        if (!isset($navigationStorageTransfer->getRenderedContent()[$renderedContentCacheKey])) {
             return false;
         }
 
@@ -206,5 +166,10 @@ class ContentNavigationTwigFunctionProvider extends TwigFunctionProvider
         }
 
         return (int)$navigationStorageTransfer->getRevalidteTime() >= time();
+    }
+
+    protected function getRenderedContentCacheKey(string $availableTemplate): string
+    {
+        return sprintf('%s:%s', $this->storeClient->getCurrentStore()->getName(), $availableTemplate);
     }
 }
